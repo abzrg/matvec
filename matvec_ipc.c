@@ -3,11 +3,10 @@
 //
 // NOTE: This only works on Unix systems currently.
 
-#include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <sys/mman.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define UTILS_IMPLEMENTATION
@@ -16,6 +15,7 @@
 #define NUM_CHILD_PROCS 2
 #define CHILD_PID 0
 
+// ---<>---
 
 int main(int argc, char* argv[])
 {

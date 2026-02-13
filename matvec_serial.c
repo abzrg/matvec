@@ -1,16 +1,12 @@
-// Matrix-vector multiplication using distribution of tasks to forked
-// processes. The communication is done through a mapped memory buffer.
-//
-// NOTE: This only works on Unix systems currently.
-
-#include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <sys/mman.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define UTILS_IMPLEMENTATION
 #include "utils.h"
+
+// ---<>---
 
 int main(int argc, char* argv[])
 {
@@ -28,15 +24,9 @@ int main(int argc, char* argv[])
 
     //--- Allocate memory
 
-    double* mat = mmap(NULL, n*n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(mat != MAP_FAILED);
-    double* vec = mmap(NULL, n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(vec != MAP_FAILED);
-    double* res = mmap(NULL, n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(res != MAP_FAILED);
+    double* mat = alloc_private_memory(n*n*sizeof(*mat), PROT_READ|PROT_WRITE);
+    double* vec = alloc_private_memory(n*sizeof(*mat), PROT_READ|PROT_WRITE);
+    double* res = alloc_private_memory(n*sizeof(*mat), PROT_READ|PROT_WRITE);
 
     //--- Initialize matrices and vectors
 
@@ -46,7 +36,7 @@ int main(int argc, char* argv[])
         }
 
         vec[i] = i;
-        res[i] = 0;
+        res[i] = 0.0;
     }
 
     //--- Do the calculation (serial)
@@ -59,22 +49,18 @@ int main(int argc, char* argv[])
         }
     }
 
-    //--- Post-process
-
     const double elapsed = now() - tik;
+
+    //--- Post-process
 
     print_vec(res, n);
     fprintf(stderr, "Elapsed time: %lf\n", elapsed);
 
     //--- Release resources
 
-    int err = 0;
-    err = munmap(mat, n*n*sizeof(*mat));
-    assert(err >= 0);
-    err = munmap(vec, n*sizeof(*mat));
-    assert(err >= 0);
-    err = munmap(res, n*sizeof(*mat));
-    assert(err >= 0);
+    dealloc_mapped_memory(mat, n*n*sizeof(*mat));
+    dealloc_mapped_memory(vec, n*sizeof(*mat));
+    dealloc_mapped_memory(res, n*sizeof(*mat));
 
     return 0;
 }
