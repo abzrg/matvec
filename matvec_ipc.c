@@ -33,17 +33,9 @@ int main(int argc, char* argv[])
 
     //--- Allocate memory
 
-    double* mat = mmap(NULL, n*n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(mat != MAP_FAILED);
-
-    double* vec = mmap(NULL, n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(vec != MAP_FAILED);
-
-    double* res = mmap(NULL, n*sizeof(*mat), PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-    assert(res != MAP_FAILED);
+    double* mat = alloc_shared_memory(n*n*sizeof(*mat), PROT_READ|PROT_WRITE);
+    double* vec = alloc_shared_memory(n*sizeof(*vec), PROT_READ|PROT_WRITE);
+    double* res = alloc_shared_memory(n*sizeof(*res), PROT_READ|PROT_WRITE);
 
     //--- Initialize matrices and vectors
 
@@ -53,18 +45,18 @@ int main(int argc, char* argv[])
         }
 
         vec[i] = i;
-        res[i] = 0;
+        res[i] = 0.0;
     }
 
     //--- Matrix-vector multiplication
 
     // Distribute chunks of rows
-    uint64_t num_chunks = NUM_CHILD_PROCS;
+    uint64_t num_chunks = NUM_CHILD_PROCS, num_procs = NUM_CHILD_PROCS;
     uint64_t chunk_size = n / num_chunks;
 
     double tik = now();
 
-    for (size_t proc_index = 0; proc_index < num_chunks; proc_index++) {
+    for (size_t proc = 0; proc < num_procs; proc++) {
         pid_t pid = fork();
 
         if (pid < 0) {
@@ -73,9 +65,9 @@ int main(int argc, char* argv[])
         }
 
         if (pid == CHILD_PID) {
-            size_t start = proc_index * chunk_size;
+            size_t start = proc * chunk_size;
             size_t end =
-                (proc_index == num_chunks - 1) ? n : start + chunk_size;
+                (proc == num_procs - 1) ? n : start + chunk_size;
 
             for (size_t i = start; i < end; i++) {
                 for (size_t j = 0; j < n; j++) {
@@ -93,7 +85,7 @@ int main(int argc, char* argv[])
 
     //--- Post-process
 
-    double elapsed = now() - tik;
+    const double elapsed = now() - tik;
 
     for (size_t i = 0; i < n; i++) {
         fprintf(stdout, "%lf\n", res[i]);
@@ -103,13 +95,9 @@ int main(int argc, char* argv[])
 
     //--- Release resources
 
-    int err = 0;
-    err = munmap(mat, n*n*sizeof(*mat));
-    assert(err >= 0);
-    err = munmap(vec, n*sizeof(*mat));
-    assert(err >= 0);
-    err = munmap(res, n*sizeof(*mat));
-    assert(err >= 0);
+    dealloc_mapped_memory(res, n*n*sizeof(*res));
+    dealloc_mapped_memory(vec, n*n*sizeof(*vec));
+    dealloc_mapped_memory(mat, n*n*sizeof(*mat));
 
     return 0;
 }
