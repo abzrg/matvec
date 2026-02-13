@@ -67,7 +67,7 @@ void* alloc_private_memory(size_t size, int prot)
     return mem;
 }
 
-extern void* alloc_shared_memory(size_t size, int prot)
+void* alloc_shared_memory(size_t size, int prot)
 {
     void* mem = mmap(NULL, size, prot, MAP_ANONYMOUS | MAP_SHARED, 0, 0);
     assert(mem != MAP_FAILED);
@@ -75,13 +75,13 @@ extern void* alloc_shared_memory(size_t size, int prot)
     return mem;
 }
 
-extern void dealloc_mapped_memory(void* mem, size_t size)
+void dealloc_mapped_memory(void* mem, size_t size)
 {
     int err = munmap(mem, size);
     assert(err >= 0);
 }
 
-extern void print_mat(const double* mat, size_t m, size_t n)
+void print_mat(const double* mat, size_t m, size_t n)
 {
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
@@ -91,7 +91,7 @@ extern void print_mat(const double* mat, size_t m, size_t n)
     }
 }
 
-extern void print_vec(const double* vec, size_t n)
+void print_vec(const double* vec, size_t n)
 {
     for (size_t i = 0; i < n; i++) {
         printf("%8.3lf", vec[i]);

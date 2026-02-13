@@ -24,9 +24,12 @@ int main(int argc, char* argv[])
 
     //--- Allocate memory
 
-    double* mat = alloc_private_memory(n*n*sizeof(*mat), PROT_READ|PROT_WRITE);
-    double* vec = alloc_private_memory(n*sizeof(*mat), PROT_READ|PROT_WRITE);
-    double* res = alloc_private_memory(n*sizeof(*mat), PROT_READ|PROT_WRITE);
+    double* mat =
+        alloc_private_memory(n * n * sizeof(*mat), PROT_READ | PROT_WRITE);
+    double* vec =
+        alloc_private_memory(n * sizeof(*mat), PROT_READ | PROT_WRITE);
+    double* res =
+        alloc_private_memory(n * sizeof(*mat), PROT_READ | PROT_WRITE);
 
     //--- Initialize matrices and vectors
 
@@ -58,9 +61,9 @@ int main(int argc, char* argv[])
 
     //--- Release resources
 
-    dealloc_mapped_memory(mat, n*n*sizeof(*mat));
-    dealloc_mapped_memory(vec, n*sizeof(*mat));
-    dealloc_mapped_memory(res, n*sizeof(*mat));
+    dealloc_mapped_memory(res, n * sizeof(*mat));
+    dealloc_mapped_memory(vec, n * sizeof(*mat));
+    dealloc_mapped_memory(mat, n * n * sizeof(*mat));
 
     return 0;
 }

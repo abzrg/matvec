@@ -120,9 +120,9 @@ int main(int argc, char* argv[])
 
     dealloc_mapped_memory(threads, num_threads * sizeof(*threads));
     dealloc_mapped_memory(thread_data, num_threads * sizeof(*thread_data));
-    dealloc_mapped_memory(res, n*sizeof(*res));
-    dealloc_mapped_memory(vec, n*sizeof(*vec));
-    dealloc_mapped_memory(mat, n*n*sizeof(*mat));
+    dealloc_mapped_memory(res, n * sizeof(*res));
+    dealloc_mapped_memory(vec, n * sizeof(*vec));
+    dealloc_mapped_memory(mat, n * n * sizeof(*mat));
 
     return 0;
 }
