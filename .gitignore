@@ -1,5 +1,6 @@
 __pycache__/
 .cache/
+*.dSYM/
 compile_commands.json
 *.txt
 

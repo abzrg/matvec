@@ -12,6 +12,6 @@ bear:
 	command -v bear >/dev/null 2>&1 && bear -- $(MAKE) -B
 
 clean:
-	@$(RM) -rv $(EXES) ./compile_commands.json ./.cache/
+	@$(RM) -rv $(EXES) ./compile_commands.json ./.cache/ ./*.dSYM/
 
 .PHONY: clean bear all
