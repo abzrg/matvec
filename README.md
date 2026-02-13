@@ -15,12 +15,12 @@ $ make bear
 
 ## Math
 
-Matrix (square): $`n \times n`$ (n: `double`)
-Vector: $`n \times 1`$
+- Matrix (square): $`n \times n`$
+- Vector: $`n \times 1`$
 
 ```math
 \begin{align}
-y                = A x \\
+            y   &= A x \\
 \rightarrow y_i &= \sum_j^n A_{ij} x_j
 \end{align}
 ```
