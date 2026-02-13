@@ -1,4 +1,4 @@
-EXES := matvec_ipc matvec_serial
+EXES := matvec_ipc matvec_serial matvec_pthread
 
 CC := clang
 CFLAGS := -Wall -Wextra -Wconversion -Wshadow -Wfatal-errors -std=c23 -pedantic

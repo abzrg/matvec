@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/mman.h>
 
 
 // @func now
@@ -23,6 +24,32 @@ extern inline double now(void);
 // @desc prints vectors (array of doubles)
 extern inline void print_vec(const double* const vec, size_t n);
 
+// @func alloc_private_memory
+// @param size size in bytes of memory to be allocated
+// @param prot the protection options (PROT_READ, PROT_WRITE)
+// @desc Allocates private memory that can only be accessed in one process
+extern void* alloc_private_memory(size_t size, int prot);
+
+// @func alloc_shared_memory
+// @param size size in bytes of memory to be allocated
+// @param prot the protection options (PROT_READ, PROT_WRITE)
+// @desc Allocates (maps) private memory that can be accessed in multiple
+// process. This is useful for Inter-Process Communication purposes.
+extern void* alloc_shared_memory(size_t size, int prot);
+
+// @func dealloc_mapped_memory
+// @param mem pointer to the mapped memory
+// @param size size in bytes of the mapped memory (to be unmapped)
+// @desc Deallocates mapped memory.
+extern void dealloc_mapped_memory(void* mem, size_t size);
+
+// @func ...
+extern void print_mat(const double* mat, size_t m, size_t n);
+
+// @func ...
+extern void print_vec(const double* vec, size_t n);
+
+
 #ifdef UTILS_IMPLEMENTATION
 
 inline double now(void)
@@ -32,13 +59,44 @@ inline double now(void)
     return t.tv_sec + t.tv_nsec * 1e-9;
 }
 
-inline void print_vec(const double* const vec, size_t n)
+void* alloc_private_memory(size_t size, int prot)
 {
-    assert(vec);
+    void* mem = mmap(NULL, size, prot, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+    assert(mem != MAP_FAILED);
 
-    for (size_t i = 0; i < n; i++) {
-        printf("%lf\n", vec[i]);
+    return mem;
+}
+
+extern void* alloc_shared_memory(size_t size, int prot)
+{
+    void* mem = mmap(NULL, size, prot, MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+    assert(mem != MAP_FAILED);
+
+    return mem;
+}
+
+extern void dealloc_mapped_memory(void* mem, size_t size)
+{
+    int err = munmap(mem, size);
+    assert(err >= 0);
+}
+
+extern void print_mat(const double* mat, size_t m, size_t n)
+{
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            printf("%8.3lf", mat[i * n + j]);
+        }
+        putchar('\n');
     }
+}
+
+extern void print_vec(const double* vec, size_t n)
+{
+    for (size_t i = 0; i < n; i++) {
+        printf("%8.3lf", vec[i]);
+    }
+    putchar('\n');
 }
 
 #endif // UTILS_IMPLEMENTATION
